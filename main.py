@@ -2,7 +2,7 @@ import os
 import time
 import json
 import requests
-
+#sou gay
 # Cores
 R = "\033[1;31m"
 G = "\033[1;32m"
