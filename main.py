@@ -1,252 +1,153 @@
-# - Imports -
-# ☇ It was used to get the screen size and clean the console
 import os
-
-# ☇ Only the sleep function was used
-from time import sleep
-
-# ☇ Used to jsonify the requests
+import time
 import json
+import requests
 
-# ☇ Used to make requests
-from requests import get
+# Cores
+R = "\033[1;31m"
+G = "\033[1;32m"
+B = "\033[1;34m"
+Y = "\033[1;33m"
+r = "\033[0m"
+n = "\033[1m"
 
-# - Reusable variables -
-# ☇ List of options that is reused in the _menu function
-options = [
-    "localizar IP",
-    "localizar DDD",
-    "Consultar CNPJ",
-    "localizar CEP",
-    "Consulta WhoIS",
-    "Verificar Telefone"
-]
-_options = [0, 1, 2, 3, 4, 5, 6, 99]
+# Logo do Deadpool
+logo = """
+  _______
+ /      \\
+|  Deadpool  |
+ _______/
+"""
 
-R="\033[1;31m";G="\033[1;32m";B="\033[1;34m";Y="\033[1;33m";r="\033[0m";n="\033[1m"
-
+# Função para limpar a tela
 def cls():
-    # - Function to clean the console
+    os.system('cls' if os.name == 'nt' else 'clear')
 
-    os.system('cls' if os.name=='nt' else 'clear')
-
-# ☇ "[+]" colored
-start = f"{n}[{B}+{r}{n}] "
-
-# - Main code -
-
-class metodos:
-    def whois():
-        domain=input("%s%sDigite o dominio que deseja consultar:%s "%(start,B,r));cls()
-        headers={"apikey": "2nY2gxtScwH6mPVmOSYstS8oVmF4ltbb"}
-        rsp=get(url=f"https://api.apilayer.com/whois/query?domain={domain}",headers=headers)
-        rspj=rsp.json()
-        match rsp.status_code:
-            case 200:
-                metodos.ndict(rspj)
-                print("%s%sPeço desculpas por não traduzir as respostas, veja porque não traduzir em: https://github.com/kvgnx54/ghostpanel%s"%(start,Y,r))
-                input("\n%s%sAperte a tecla %s%sEnter%s%s para voltar.%s"%(start,B,r,G,r,B,r))
-            case _:
-                print("%s[%s!%s%s] %s%s%s"%(n,R,r,n,R,str(rspj["message"]),r));print("%sSe o site começa com https:// remova essa parte.%s"%(start,r));input("\n%s%sAperte a tecla %s%sEnter%s%s para voltar.%s"%(start,B,r,G,r,B,r))
-    def cep():
-        _cep=input("%s%sDigite o cep que deseja localizar:%s "%(start,B,r));cls()
-        cep=[]
-        for remove in _cep:
-            if remove.isnumeric:cep.append(remove)
-            else:pass
-        cep="".join(cep)
-        if cep=="":print();input("\n%s%sAperte a tecla %s%sEnter%s%s para voltar.%s"%(start,B,r,G,r,B,r))
-        else:
-            rsp=get("https://cep.awesomeapi.com.br/%s"%(cep))
-            rspj=rsp.json()
-            match rsp.status_code:
-                case 200:
-                    print("%sCep: %s%s"%(start,str(rspj["cep"]),r))
-                    print("%sTipo do endereço: %s%s"%(start,str(rspj["address_type"]),r))
-                    print("%sNome do endereço: %s%s"%(start,str(rspj["address_name"]),r))
-                    print("%sEndereço completo: %s%s"%(start,str(rspj["address"]),r))
-                    print("%sEstado: %s%s"%(start,str(rspj["state"]),r))
-                    print("%sCidade: %s%s"%(start,str(rspj["city"]),r))
-                    print("%sBairro: %s%s"%(start,str(rspj["district"]),r))
-                    print("%sCódigo IBGE: %s%s"%(start,str(rspj["city_ibge"]),r))
-                    print("%sDDD: %s%s"%(start,str(rspj["ddd"]),r))
-                    print("%sLatitude: %s%s"%(start,str(rspj["lat"]),r))
-                    print("%sLongitude: %s%s"%(start,str(rspj["lng"]),r))
-                    print("%s%sLink do Google maps: https://www.google.com/maps/place/%s,%s%s"%(start,Y,str(rspj["lat"]),str(rspj["lng"]),r))
-                    input("\n%s%sAperte a tecla %s%sEnter%s%s para voltar.%s"%(start,B,r,G,r,B,r))
-                case _:
-                    print("%s[%s!%s%s] %s%s%s"%(n,R,r,n,R,str(rspj["message"]),r));input("\n%s[%s+%s%s%s] %sAperte a tecla %s%sEnter%s%s para voltar.%s"%(start,B,r,G,r,B,r))
-    def vt():
-        _cll=input("%s%sDigite o telefone que deseja verificar:%s "%(start,B,r))
-        cls()
-        cll=[]
-        for remove in _cll:
-            if remove.isnumeric:cll.append(remove)
-            else:pass
-        cll="".join(cll)
-        if cll == "":print();input("\n%s%sAperte a tecla %s%sEnter%s%s para voltar.%s"%(start,B,r,G,r,B,r))
-        else:
-            rsp=get("https://phonevalidation.abstractapi.com/v1/?api_key=b8d6fe3c1915403989b5e28416c75fbc&phone=%s"%(cll))
-            rspj=rsp.json()
-            if rsp.status_code != 200:
-                rsp=get(url="https://api.apilayer.com/number_verification/validate?number=%s"%(cll),headers={'apikey': '2nY2gxtScwH6mPVmOSYstS8oVmF4ltbb'})
-                rspj=rsp.json()
-            
-            metodos.ndict(rspj)
-            print("%sSe a requisição retornou o codigo erro use o numero no formato +00 00 00000-0000%s"%(start,r))
-            input("\n%s%sAperte a tecla %s%sEnter%s%s para voltar.%s"%(start,B,r,G,r,B,r))
-    # Função para usar quando eu tiver com preguiça de fazer print manualmente
-    def nlist(LIST):
-        for value in range(0, len(LIST)):
-            if isinstance(LIST[value], dict):
-                metodos.ndict(LIST[value])
-            elif isinstance(LIST[value], list):
-                metodos.nlist(LIST[value])
-            else:
-                print("%s%s%s"%(start,LIST[value],r))
-    # Função para usar quando eu tiver com preguiça de fazer print manualmente
-    def ndict(DICT):
-        for key, value in DICT.items():
-            if isinstance(value, dict):
-                print("%s[%s-%s%s] %s: %s"%(n,B,r,n,key,r))
-                metodos.ndict(value)
-            elif isinstance(value, list):
-                print("%s[%s-%s%s] %s: %s"%(n,B,r,n,key,r))
-                metodos.nlist(value)
-            else:
-                print("%s%s: %s%s"%(start,key,value,r))
-    def cnpj():
-        _cnpj=input("%s%sDigite o CNPJ que deseja consultar%s: "%(start,B,r));cls()
-        cnpj=[]
-        for remove in _cnpj:
-            if remove.isnumeric():cnpj.append(remove)
-            else:pass
-        _cnpj="".join(cnpj)
-        cnpj=[]
-        cnpj.append(_cnpj)
-        if cnpj=="":print();input("\n%s%sAperte a tecla %s%sEnter%s%s para voltar.%s"%(start,B,r,G,r,B,r))
-        else:
-            rsp=get("https://brasilapi.com.br/api/cnpj/v1/%s"%(cnpj))
-            rspj=rsp.json()
-            if rsp.status_code!=200:print("%s[%s!%s%s] %s%s%s"%(n,R,r,n,R,str(rspj["message"]),r))
-            else:metodos.ndict(rspj)
-            input("\n%s%sAperte a tecla %s%sEnter%s%s para voltar.%s"%(start,B,r,G,r,B,r))
-    def ddd():
-        ddd=input("%s%sDigite o DDD que deseja consultar%s: "%(start,B,r));cls()
-        rsp=get("https://brasilapi.com.br/api/ddd/v1/%s"%(ddd))
-        rspj=rsp.json()
-        match rsp.status_code:
-            case 200:
-                print("%s%sEstado: %s%s"%(start,Y,str(rspj["state"]),r))
-                if type(rspj["cities"])==list:
-                    for i in range(0, len(rspj["cities"])):
-                        print("%sCidade %s: %s%s"%(start,i+1,str(rspj["cities"][i]),r))
-                else:pass
-                input("\n%s%sAperte a tecla %s%sEnter%s%s para voltar.%s"%(start,B,r,G,r,B,r))
-            case _:print("%s[%s!%s%s] %s%s%s"%(n,R,r,n,R,str(rspj["message"]),r));input("\n%s[%s+%s%s%s] %sAperte a tecla %s%sEnter%s%s para voltar.%s"%(start,B,r,G,r,B,r))
-    def ip():
-        ip=input("%s%sDigite o IP que deseja localizar%s: "%(start,B,r));cls()
-        rsp=get("http://ip-api.com/json/%s"%(ip))
-        rspj=rsp.json()
-        if rspj["status"]=="success":
-            print("%sStatus: sucesso%s"%(start,r))
-            print("%sPaís: %s%s"%(start,str(rspj["country"]),r))
-            print("%sSigla País: %s%s"%(start,str(rspj["countryCode"]),r))
-            print("%sEstado: %s%s"%(start,str(rspj["regionName"]),r))
-            print("%sCidade: %s%s"%(start,str(rspj["city"]),r))
-            print("%sCódigo ZIP: %s%s"%(start,str(rspj["zip"]),r))
-            print("%sLatitude: %s%s"%(start,str(rspj["lat"]),r))
-            print("%sLongitude: %s%s"%(start,str(rspj["lon"]),r))
-            print("%sIP: %s%s"%(start,str(rspj["query"]),r))
-            print("%sLink do Google maps: https://www.google.com/maps/place/%s,%s%s"%(start,str(rspj["lat"]),str(rspj["lon"]),r))
-            input("\n%s%sAperte a tecla %s%sEnter%s%s para voltar.%s"%(start,B,r,G,r,B,r))
-        else:print("%s[%s!%s%s] %sOcorreu um erro na requisição. Status:  %s%s%s"%(n,R,r,n,R,r,rspj["status"],r));input("%s%sAperte a tecla %s%sEnter%s%s para voltar.%s"%(start,B,r,G,r,B,r))
-
-def _menu(txt:list = "",rst=False):
-    """
-    - This function prints all available options to select from the menu
-    - Explanation:
-    - - Basically the function will take a list called "options" and add the option to the menu.
-    """
-
-    if txt == "":
-        txt = options
-    size = os.get_terminal_size().columns
-    contagem = 0
-    for item in txt:
-        contagem += 1
-        strcont = f"[{contagem}] "
-        if rst == True:
-            strcont = ""
-        if len(item) > (size-6):
-            print(" │",strcont+str(item)[:(size-6-len(strcont))],"│")
-            _menu(txt=[str(item)[(size-6):]],rst=True)
-        else:
-            print(" │",strcont+str(item),"│".rjust(size-5-len(str(item))-len(strcont)))
-
+# Função para imprimir o menu
 def menu():
-    """
-    - Function that creates the menu
-    """
+    cls()
+    print(logo)
+    print(" ╭" + "─" * 40 + "╮")
+    print(" │" + "  Menu  ".center(40) + "│")
+    print(" ╞" + "═" * 40 + "╡")
+    print(" │ 1. Localizar IP")
+    print(" │ 2. Localizar DDD")
+    print(" │ 3. Consultar CNPJ")
+    print(" │ 4. Localizar CEP")
+    print(" │ 5. Consultar WhoIS")
+    print(" │ 6. Verificar Telefone")
+    print(" │ 7. Consultar Clima")
+    print(" │ 8. Consultar Notícias")
+    print(" │ 99. Api's usadas")
+    print(" │ 0. Sair")
+    print(" ├" + "─" * 40 + "╯")
+
+# Função para imprimir as opções
+def print_options(options):
+    for i, option in enumerate(options):
+        print(f" │ {i+1}. {option}")
+
+# Função para imprimir as informações
+def print_info(info):
+    for key, value in info.items():
+        print(f" │ {key}: {value}")
+
+# Função para consultar a API
+def consult_api(url, headers=None):
+    response = requests.get(url, headers=headers)
+    return response.json()
+
+# Função para imprimir as informações da API
+def print_api_info(info):
+    for key, value in info.items():
+        print(f" │ {key}: {value}")
+
+# Função para consultar o clima
+def consult_clima():
+    cidade = input(f"{Y}Digite a cidade que deseja consultar o clima: {r}")
+    info = consult_api(f"http://api.openweathermap.org/data/2.5/weather?q={cidade}&appid=SEU_API_KEY")
+    print_api_info(info)
+
+# Função para consultar as notícias
+def consult_noticias():
+    categoria = input(f"{Y}Digite a categoria de notícias que deseja consultar (ex: tecnologia, política, etc.): {r}")
+    info = consult_api(f"https://newsapi.org/v2/top-headlines?category={categoria}&country=br&apiKey=SEU_API_KEY")
+    print_api_info(info)
+
+# Inicializar o painel
+def main():
     while True:
-        # ☇ Screen Size
-        size = os.get_terminal_size().columns
-        size = size - 4
-        # ☇ Clear console
-        cls()
-        print(" ╭"+"─"*(size)+"╮")
-        print(" │"+str("Dentinho Lindo").center(size)+"│")
-        print(" ╞"+"═"*(size)+"╡")
-        _menu()
-        print(" │","│".rjust(size))
-        print(" │","[99] Api's","│".rjust(size-11))
-        print(" │","[0] Sair","│".rjust(size-9))
-        print(" ├"+"─"*(size)+"╯")
-        ipt = input(f" ├({start}Numero da opção{r}) ")
+        menu()
+        ipt = input(f" ├({R}Número da opção{r}) ")
         cls()
         try:
             ipt = int(ipt)
-            if ipt not in _options:
+            if ipt not in [0, 1, 2, 3, 4, 5, 6, 7, 8, 99]:
                 cls()
-                print(f"{start}Escolha uma opção válida{r}")
-                sleep(2)
+                print(f"{R}Escolha uma opção válida{r}")
+                time.sleep(2)
                 cls()
-        except:
+                except:
             cls()
-            print(f"{start}Escolha uma opção válida{r}")
-            sleep(2)
+            print(f"{R}Escolha uma opção válida{r}")
+            time.sleep(2)
             cls()
         match ipt:
             case 1:
-                metodos.ip()
+                # Consultar IP
+                ip = input(f"{Y}Digite o IP que deseja localizar: {r}")
+                info = consult_api(f"http://ip-api.com/json/{ip}")
+                print_api_info(info)
             case 2:
-                metodos.ddd()
+                # Consultar DDD
+                ddd = input(f"{Y}Digite o DDD que deseja consultar: {r}")
+                info = consult_api(f"https://brasilapi.com.br/api/ddd/v1/{ddd}")
+                print_api_info(info)
             case 3:
-                metodos.cnpj()
+                # Consultar CNPJ
+                cnpj = input(f"{Y}Digite o CNPJ que deseja consultar: {r}")
+                info = consult_api(f"https://brasilapi.com.br/api/cnpj/v1/{cnpj}")
+                print_api_info(info)
             case 4:
-                metodos.cep()
+                # Localizar CEP
+                cep = input(f"{Y}Digite o CEP que deseja localizar: {r}")
+                info = consult_api(f"https://cep.awesomeapi.com.br/json/{cep}")
+                print_api_info(info)
             case 5:
-                metodos.whois()
+                # Consultar WhoIS
+                dominio = input(f"{Y}Digite o domínio que deseja consultar: {r}")
+                info = consult_api(f"https://api.apilayer.com/whois/query?domain={dominio}", headers={"apikey": "SEU_API_KEY"})
+                print_api_info(info)
             case 6:
-                metodos.vt()
-            case 0:
-                exit("%sObrigado por Usar!%s"%(start,r))
+                # Verificar Telefone
+                telefone = input(f"{Y}Digite o telefone que deseja verificar: {r}")
+                info = consult_api(f"https://phonevalidation.abstractapi.com/v1/?api_key=SEU_API_KEY&phone={telefone}")
+                print_api_info(info)
+            case 7:
+                # Consultar Clima
+                consult_clima()
+            case 8:
+                # Consultar Notícias
+                consult_noticias()
             case 99:
-                apisusadas={
+                # Api's usadas
+                apis_usadas = {
                     "IP": "ip-api.com",
                     "DDD": "brasilapi.com.br",
                     "CNPJ": "brasilapi.com.br",
-                    "Cep": "cep.awesomeapi.com.br",
+                    "CEP": "cep.awesomeapi.com.br",
                     "WhoIS": "apilayer.com",
-                    "Verificação de telefone": "apilayer.com",
-                    "Verificação de telefone 2": "phonevalidation.abstractapi.com"}
-                metodos.ndict(apisusadas)
-                input("\n%s%sAperte a tecla %s%sEnter%s%s para voltar.%s"%(start,B,r,G,r,B,r))
-
-
+                    "Verificação de telefone": "phonevalidation.abstractapi.com",
+                    "Clima": "openweathermap.org",
+                    "Notícias": "newsapi.org"
+                }
+                print_api_info(apis_usadas)
+            case 0:
+                # Sair
+                print(f"{R}Obrigado por usar!{r}")
+                break
             case _:
-                print(f"{start}Escolha uma opção válida{r}")
-
+                print(f"{R}Escolha uma opção válida{r}")
 
 if __name__ == "__main__":
-    menu()
+    main()
